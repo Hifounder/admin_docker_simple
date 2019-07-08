@@ -1,0 +1,16 @@
+# for local development
+version: '3.7'
+
+services:
+  frontend:
+    build:
+    # Local dockerfile
+      context: .
+      target: 'develop-stage'
+    image: admin_docker_simple_client/dev
+    ports:
+      - '8080:8080'
+    volumes:
+    # 這邊就是 vueCLI dev 模式
+      - './vue:/app'
+    command: ["npm", "run", "serve"]

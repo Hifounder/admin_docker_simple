@@ -1,0 +1,48 @@
+# for local development
+version: '3.7'
+
+# Back-END
+services:
+  server:
+    image: admin_docker_simple_server:latest
+    ports:
+      - '3000:3000'
+    depends_on: 
+      - mysql
+    volumes:
+    # 之所以會變成這樣都是 bcrypt 的問題
+    # 他會因為node_module安裝的問題不能同步
+    # 然後在Dockerfile時COPY時又要過濾
+      - ./koa/codes:/usr/src/app/codes
+      - ./koa/controllers:/usr/src/app/controllers
+      - ./koa/db:/usr/src/app/db
+      - ./koa/routes:/usr/src/app/routes
+      - ./koa/services:/usr/src/app/services
+      - ./koa/index.js:/usr/src/app/index.js
+
+    command: ["npm", "run", "dev"]
+    networks:
+      - backend
+
+# database
+  mysql:
+    image: mysql:5.7
+    networks:
+      - backend
+    restart: always
+    environment:
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USER}'
+      MYSQL_PASSWORD: '${DB_PASS}'
+      MYSQL_ROOT_PASSWORD: '${DB_PASS}'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - /usr/local/opt/mysql/5.7:/var/lib/mysql
+
+
+networks:
+  backend:
+    name: backend

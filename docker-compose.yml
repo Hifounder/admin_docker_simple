@@ -1,0 +1,58 @@
+version: "3.7"
+
+services:
+# Front-END
+  client:
+    build: ./client         
+    ports:
+      - 8080:8080
+    networks:
+      - frontend
+    environment:
+      - API_URL=http://localhost:3000/
+
+# Back-END
+  server:
+    build: ./server
+    ports:
+      - 3000:3000
+    networks:
+      - frontend
+      - backend
+    depends_on: 
+      - mysql
+      
+# database
+  mysql:
+    image: mysql:5.7
+    networks:
+      - backend
+    restart: always
+    environment:
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USER}'
+      MYSQL_PASSWORD: '${DB_PASS}'
+      MYSQL_ROOT_PASSWORD: '${DB_PASS}'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - ./database:/var/lib/mysql
+# migration
+  migration:
+    image: admin_docker_simple_server
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      - mysql
+    networks:
+      - backend
+
+volumes:
+  database:
+
+networks:
+  frontend:
+    name: frontend
+  backend:
+    name: backend

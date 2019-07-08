@@ -1,0 +1,23 @@
+# developer stage
+FROM node:latest as develop-stage
+
+WORKDIR /app
+
+COPY vue/package*.json ./
+
+RUN npm install
+
+COPY vue/. .
+
+# builder stage
+FROM develop-stage as builder-stage
+
+RUN npm run build
+
+# production stage
+
+FROM nginx
+
+COPY --from=builder-stage /app/dist /usr/share/nginx/html
+
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
