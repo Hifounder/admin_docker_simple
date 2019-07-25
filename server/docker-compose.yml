@@ -4,7 +4,7 @@ version: '3.7'
 # Back-END
 services:
   server:
-    image: admin_docker_simple_server:latest
+    build: .
     ports:
       - '3000:3000'
     depends_on: 
@@ -19,6 +19,7 @@ services:
       - ./koa/routes:/usr/src/app/routes
       - ./koa/services:/usr/src/app/services
       - ./koa/index.js:/usr/src/app/index.js
+      - ./koa/utils:/usr/src/app/utils
 
     command: ["npm", "run", "dev"]
     networks:
@@ -26,7 +27,7 @@ services:
 
 # database
   mysql:
-    image: mysql:5.7
+    image: mysql
     networks:
       - backend
     restart: always
@@ -40,6 +41,7 @@ services:
     expose:
       - '3306'
     volumes:
+      # mySQL 位置
       - /usr/local/opt/mysql/5.7:/var/lib/mysql
 
 
